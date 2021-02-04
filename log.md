@@ -1,4 +1,4 @@
-#Log of the progresses
+# Log of the progresses
 
 1. 
 2.
