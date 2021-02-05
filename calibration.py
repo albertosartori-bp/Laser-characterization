@@ -12,7 +12,7 @@ aver_dbm_power = np.empty((4, temp.shape[1]))
 
 # read data
 for i in range(4):
-    aver_wlength[i,:], aver_dbm_power[i,:] = np.loadtxt("CalibrationA/Medie_{}.txt".format(i), skiprows=4, unpack=True)
+    aver_wlength[i,:], aver_dbm_power[i,:] = np.loadtxt("Calibration/Medie_{}.txt".format(i), skiprows=4, unpack=True)
 aver_power = 10**(aver_dbm_power/10)
 
 # plot data
@@ -92,8 +92,8 @@ res2_power = 10**(res2_dbm_power/10)
 
 # plot data
 plt.figure()
-for i in range(7):
-    plt.plot(res2_wlength[i], res2_power[i], label='{}'.format(i+1))
+for i in range(9):
+    plt.plot(res2_wlength[i], res2_dbm_power[i], label='{}'.format(i+1))
     #plt.plot(wlength[i, max_back[i]], dbm_power[i, max_back[i]], 'k.')
 
 plt.legend(loc='upper right')

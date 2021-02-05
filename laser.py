@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 NUM_ARRAY = [31, 26, 25, 27, 25, 14]
 START = 0
-DATASET = 3
+DATASET = 2
 NUM = NUM_ARRAY[DATASET - 1]
 name = 'Measure/T_{}_{}.txt'
 
@@ -50,17 +50,17 @@ tot_p = np.sum(power, axis=1)
 # plt.show()
 
 
-# #%% PLOT ALL SPECTRA
-# plt.figure()
-# for i in range(NUM):
-#     plt.plot(wlength[i], dbm_power[i], label='{}'.format(i+1))
-#     #plt.plot(wlength[i, max_back[i]], dbm_power[i, max_back[i]], 'k.')
+#%% PLOT ALL SPECTRA
+plt.figure()
+for i in range(NUM):
+    plt.plot(wlength[i], dbm_power[i], label='{}'.format(i+1))
+    #plt.plot(wlength[i, max_back[i]], dbm_power[i, max_back[i]], 'k.')
 
-# plt.legend(loc='upper right')
-# plt.xlabel('wavelength [nm]')
-# plt.ylabel('power [dBm]')
-# plt.grid(True)
-# plt.show()
+plt.legend(loc='upper right')
+plt.xlabel('wavelength [nm]')
+plt.ylabel('power [dBm]')
+plt.grid(True)
+plt.show()
 
 
 
@@ -153,7 +153,7 @@ plt.ylabel("Wavelength [nm]")
 # Count how many longitudinal modes are present. tol is the tolerance with which I select a peak
 # tol = -10 means I count all the peaks that are between 0 and -10 dbm after normalization with the highest peak
 # NOTE: THERE CAN BE FALSE COUNTS! A volte ci sono 2 puntine su un picco
-tol = -10
+tol = -20
 norm_dbm_power = np.transpose(np.transpose(dbm_power) - max_p_dbm)
 peak_count = [np.sum(norm_dbm_power[i, max_back[i]]>tol) for i in range(NUM)]
 fig,ax = plt.subplots()
@@ -188,3 +188,26 @@ plt.figure()
 plt.plot(wlength[-roba], norm_dbm_power[-roba])
 plt.grid()
 plt.show()
+
+
+# # %% Convolve gaussian psf of photodiode with 
+# def gaussian(x, mu, sig):
+#     return np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+
+# x = np.linspace(-1, 1, 200)
+# y = gaussian(x, 0, 0.01)
+
+
+
+
+# wlength, dbm_power = np.loadtxt('OSA_8.txt'.format(i+9), skiprows=4, unpack=True)
+# power= 10**(dbm_power/10)
+
+
+
+# h = np.convolve(power[6031:6231],y, 'same')
+
+# plt.figure()
+# plt.plot(wlength[6031:6231], h)
+# plt.plot(wlength[6031:6231], power[6031:6231])
+# plt.show()
