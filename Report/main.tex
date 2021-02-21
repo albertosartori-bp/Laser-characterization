@@ -1,0 +1,85 @@
+\documentclass[
+10pt, % Main document font size
+%letterpaper, % Paper type, use 'letterpaper' for US Letter paper
+oneside, % One page layout (no page indentation)
+%twoside, % Two page layout (page indentation for binding and different headers)
+headinclude,footinclude, % Extra spacing for the header and footer
+BCOR5mm, % Binding correction
+]{article}
+
+\input{structure.tex} 
+
+\hyphenation{Fortran hy-phen-ation}
+
+
+\begin{document}
+
+\begin{titlepage}
+	\vspace{2cm}
+	\centering
+	\includegraphics[scale=0.4]{Figures/unnamed.jpg}\\
+	{\scshape\LARGE University of Trento\par}
+	\vspace{2cm}
+		{\scshape\Large ADVANCED PHOTONICS LABORATORY \par \newline
+	a.y. 2020/2021 \par}
+	\vspace{1cm}
+	{\huge\bfseries Diode Laser characterization  \par}
+	\vspace{1cm}
+	{\Large\itshape Rizzotti Davide \par Mione Filippo \par Sartori Alberto }
+	
+	\vfill
+
+	{\large \today\par}
+\end{titlepage}
+
+\numberwithin{figure}{section}
+\numberwithin{table}{section}
+\numberwithin{equation}{section}
+\newpage
+\tableofcontents
+\newpage
+
+\begin{abstract}
+    The aim of the experience is twofold: on one side the emission properties of a laser diode are characterized thought the analysis of the optical spectrum. On the other side the experimental apparatus is controlled via a custom made application written in LabView. 
+    At first the experimental apparatus and the control application are tested, then the laser emission spectrum are acquired for different operating regimes by varying the temperature and the current of the diode. Finally the data are analyzed in order to determine laser diode fundamental parameters such as conversion rate, external quantum efficiency, characteristic temperature, spectral characteristics and some interesting features such as mode hooping of multimode laser. 
+\end{abstract}
+
+\section{Introduction}
+Laser is an optical oscillator that comprises a resonant optical amplifier whose output is fed back to the input with matching phase. This feedback process continues until the output is large enough. 
+Lasers have an enormous variety of forms and uses, such as imaging, telecommunications, material processing, sensing and so on. In particular when a coherent optical amplifier (based on light amplification by stimulated emission of radiation, or LASER) is a forward biased pn junction, it is called a laser diode or semiconductor injection laser.  The population inversion that renders stimulated emission dominant over absorption is achieved by electric current injection. Carrier pair injected into junction region recombine by means of stimulated emission. The active medium is placed between two mirrors that forms a resonant cavity where the feedback mechanism provide the actual amplification.  
+Two conditions must be satisfied for the laser to oscillate (lase):
+\begin{itemize}
+    \item Gain condition: determine the minimum population difference, and therefore the pumping threshold required for lasing. If the small signal gain coefficient is larger that the losses in the cavity $\gamma_0(\nu) > \alpha_r$ then amplification starts and increase the coherent output power emitted. In the case of laser diode this corresponds to a injection current threshold;
+    \item Phase condition: the total phase shift in a round trip gain inside the oscillator must be a multiple of $2 \pi$ so that output and input are in phase and can interfere constructively. if one assumes that only standing waves exist inside cavity, this reduces to the condition: $2 n d = q\lambda$ where $q$ is the longitudinal mode of the cavity.
+\end{itemize}
+Then, laser oscillation can occur only for frequencies where gain coefficients exceeds losses and the mode order matches the one required by resonance condition. 
+
+comments on gain saturation and clamping
+
+Optical spectrum analyzer is a class of devices that measures optical spectra, from which further analysis is possible. There are inteferometric based or grating based. 
+
+\section{Set-up}
+This is a schematic of the experimental set-up:
+
+\subsection{Laser}
+some characteristics and informations on laser diode in use and detail on the datasheet. 
+
+\subsection{OSA}
+properties and information on the 
+\subsection{LabView application}
+properties of the labview application and simple schematics or screenshot. 
+
+\section{Analysis}
+\subsection{Calibration}
+\subsection{Spectral characteristics}
+\subsection{Laser properties}
+\subsection{Temperature dependence}
+
+\section{Discussion}
+
+
+\section{Conclusion}
+
+
+
+\end{document}

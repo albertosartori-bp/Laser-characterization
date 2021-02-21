@@ -45,9 +45,6 @@ aver_tot_p = np.sum(aver_power, axis=1)
 print(aver_tot_p)
 
 
-
-
-
 #     DIFFERENT RESOLUTION
 #%% FIRST CASE: T = 45, I = 29 mA, Medium mean
 temp = np.loadtxt("Calibration/Res_{}.txt".format(0), skiprows=4, unpack=True)
@@ -77,7 +74,6 @@ plt.show()
 res1_tot_p = np.zeros(3)
 res1_tot_p = np.sum(res1_power, axis=1)
 print(res1_tot_p)
-
 
 #%% SECOND CASE: T = 25, I = 20 mA, No mean
 temp = np.loadtxt("Calibration/Reso_{}.txt".format(0), skiprows=4, unpack=True)
@@ -116,7 +112,7 @@ x = res2_wlength[0,:]
 y = res2_power[0,:]
 y_rec = np.zeros(x.size)
 for i in range(x.size):
-    y_rec[i] = sum(y[abs(x-x[i])<(res/2)])
+    y_rec[i] = np.sum(y[np.abs(x-x[i])<(res/2)])
 y_rec_dbm = 10*np.log10(y_rec)
 # plot data
 plt.figure()
@@ -130,8 +126,8 @@ plt.ylabel('power [dBm]')
 plt.grid(True)
 plt.show()
 
-
-
+#%%
+diff = np.sum(res2_dbm_power[8]-y_rec_dbm)
 
 #   RANGE
 #%% FIRST CASE: T = 25, I = 25 mA, No averages, Full resolution

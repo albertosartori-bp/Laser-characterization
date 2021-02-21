@@ -3,7 +3,7 @@ import scipy.integrate as integ
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
 
-
+#%% Initialization
 NUM_ARRAY = [31, 26, 25, 27, 25, 14]
 START = 0
 DATASET = 5
@@ -20,6 +20,7 @@ power = np.empty((NUM, a.shape[1]))
 dpower = np.empty((NUM, a.shape[1], 2))
 max_back = np.empty((NUM, a.shape[1]), dtype=bool)
 dtot_p = np.empty((NUM,2))
+n_ext = np.empty(len(NUM_ARRAY-1))
 
 #%%    READ DATA, CONVERSION FROM dBm TO W, FIND MAXIMA
 for i in range(NUM):
@@ -243,8 +244,9 @@ second_deriv_current = (first_deriv_current[1:] + first_deriv_current[:-1])/2
 i_th4 = second_deriv_current[np.argmax(second_deriv)]
 
 
-
-
+#%% External quantum efficiency
+n_ext[DATASET-1] = 0.806544*param_above[0]*np.max(y)
+print(param_above)
 
 #%% POWER VS CURRENT PLOT
 fig, axs = plt.subplots(2,2)
@@ -275,38 +277,34 @@ plt.show()
 
 
 
+#%% Characteristic temperature : threshold current as function of temperature.
+
+i_th = [8.640025086872926, 10.515240037711957,  11.67158638894386, 13.063864899267069, 15.499155841615838]
+T = np.empty(5)
+for j in range(5):
+        T[j] = np.loadtxt(name.format(j+1, 0), skiprows=2, max_rows=1, unpack=True)
+print(T)
 
 
-
-
-
-
-#%% SINGLE PLOT
-roba = 24
 plt.figure()
-plt.plot(wlength[-roba], dbm_power[-roba])
-plt.grid()
+plt.plot(T, np.log(i_th), '.r')
+plt.xlabel('Temperature [°C]')
+plt.ylabel('$ln(J_{th})$')
+plt.grid(True)
 plt.show()
 
+param, covm = opt.curve_fit(retta, T, np.log(i_th))
+x = np.arange(15,50, 0.1)
 
-# # %% Convolve gaussian psf of photodiode with 
-# def gaussian(x, mu, sig):
-#     return np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+plt.plot(x, param[0]*x+param[1], '-b')
+plt.legend('Experimental data', 'Fit')
 
-# x = np.linspace(-1, 1, 200)
-# y = gaussian(x, 0, 0.01)
-
-
+#%% External quantum efficiency
 
 
-# wlength, dbm_power = np.loadtxt('OSA_8.txt'.format(i+9), skiprows=4, unpack=True)
-# power= 10**(dbm_power/10)
+plt.figure()
+plt.plot(T, n_ext/4, '.r')
+plt.grid(True)
+plt.show()
 
-
-
-# h = np.convolve(power[6031:6231],y, 'same')
-
-# plt.figure()
-# plt.plot(wlength[6031:6231], h)
-# plt.plot(wlength[6031:6231], power[6031:6231])
-# plt.show()
+#%%
