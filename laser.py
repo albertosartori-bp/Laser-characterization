@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 NUM_ARRAY = [31, 26, 25, 27, 25, 14]
 START = 0
-DATASET = 2
+DATASET = 5
 NUM = NUM_ARRAY[DATASET - 1]
 name = 'Measure/T_{}_{}.txt'
 
@@ -55,24 +55,24 @@ dtot_p[:, 1] = np.sqrt(np.sum(np.squeeze(dpower[:,:,1])**2, axis=1))
 # plt.show()
 
 
-# #%% PLOT ALL SPECTRA
-# plt.figure()
-# for i in range(NUM):
-#     plt.plot(wlength[i], dbm_power[i], label='{}'.format(i+1))
-#     #plt.plot(wlength[i, max_back[i]], dbm_power[i, max_back[i]], 'k.')
+#%% PLOT ALL SPECTRA
+plt.figure()
+for i in range(NUM):
+    plt.plot(wlength[i], dbm_power[i], label='{}'.format(i+1))
+    #plt.plot(wlength[i, max_back[i]], dbm_power[i, max_back[i]], 'k.')
 
-# plt.legend(loc='upper right')
-# plt.xlabel('wavelength [nm]')
-# plt.ylabel('power [dBm]')
-# plt.grid(True)
-# plt.show()
+plt.legend(loc='upper right')
+plt.xlabel('wavelength [nm]')
+plt.ylabel('power [dBm]')
+plt.grid(True)
+plt.show()
 
 
 
 #%% WAVELENGTH DEPENDENCE FROM CURRENT (DONE THE SAME WAY AS TEMPERATURE)
 
 #find the first N maxima (Nmax)
-Nmax = 1
+Nmax = 3
 N = 15
 idx = np.empty((NUM, N))
 y_temp = np.empty((NUM, N))
@@ -156,7 +156,7 @@ plt.legend()
 plt.show()
 
 # select a peak
-lamb = 1545.1
+lamb = 1554.5
 y_fit = np.zeros(NUM)
 for i in range(NUM):
     if not np.all(np.abs(y[i,:]-lamb)>0.7):
@@ -182,7 +182,7 @@ print("The coefficient is: ", fit_param[0], "+-", np.sqrt(fit_covm[0,0]), "nm/mA
 # Count how many longitudinal modes are present. tol is the tolerance with which I select a peak
 # tol = -10 means I count all the peaks that are between 0 and -10 dbm after normalization with the highest peak
 # NOTE: THERE CAN BE FALSE COUNTS! A volte ci sono 2 puntine su un picco
-tol = -20
+tol = -10
 norm_dbm_power = np.transpose(np.transpose(dbm_power) - max_p_dbm)
 peak_count = [np.sum(norm_dbm_power[i, max_back[i]]>tol) for i in range(NUM)]
 # peak_count1 è il conteggio togliendo i picchi vicini tra loro (nota: i conteggi da 1 vengono azzerati)
@@ -282,9 +282,9 @@ plt.show()
 
 
 #%% SINGLE PLOT
-roba = 1
+roba = 24
 plt.figure()
-plt.plot(wlength[-roba], norm_dbm_power[-roba])
+plt.plot(wlength[-roba], dbm_power[-roba])
 plt.grid()
 plt.show()
 
