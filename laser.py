@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 #%% Initialization
 NUM_ARRAY = [31, 26, 25, 27, 25, 14]
 START = 0
-DATASET = 2
+DATASET = 6
 NUM = NUM_ARRAY[DATASET - 1]
 name = 'Measure/T_{}_{}.txt'
 
@@ -20,7 +20,7 @@ power = np.empty((NUM, a.shape[1]))
 dpower = np.empty((NUM, a.shape[1], 2))
 max_back = np.empty((NUM, a.shape[1]), dtype=bool)
 dtot_p = np.empty((NUM,2))
-n_ext = np.empty(len(NUM_ARRAY-1))
+n_ext = np.empty(len(NUM_ARRAY)-1)
 
 #%%    READ DATA, CONVERSION FROM dBm TO W, FIND MAXIMA
 for i in range(NUM):
@@ -202,7 +202,27 @@ ax2.set_ylabel("Total power") #(or the one of the highest peak) non vedo nessun 
 
 
 #%%  TOTAL POWER VS CURRENT STUDY
+retta = lambda x, a, b: a*x + b
 
+i_th = [10, 10.52,  11.67, 13.06, 15.6]
+mask = np.array([current[i] > i_th[DATASET-1] for i in range(NUM)]) #take only the points above the threshold
+#mask[[17, 16]] = False #exclude specific data pointsm
+
+
+param, covm = opt.curve_fit(retta, current[mask], tot_p[mask], sigma= tot_p[mask]*0.03)
+print("a: {} +/- {} mW/mA".format(param[0], np.sqrt(covm[0,0])))
+print("b: {} +/- {} mW".format(param[1], np.sqrt(covm[1,1])))
+
+plt.figure()
+plt.plot(current, tot_p, '.-')
+#plt.fill_between(current, tot_p - dtot_p[:,0], tot_p + dtot_p[:,1], alpha=0.4) #with error from datasheet
+plt.fill_between(current, tot_p*0.985, tot_p*1.015, alpha=0.4) #with error 3% (+-1.5?)
+plt.plot(current[mask], retta(current[mask], *param,))
+plt.grid(True)
+plt.show()
+
+
+#%% THRESHOLD CURRENT STUDY
 CURRENT_LIMITS_BELOW = np.array([ [0, 4],
                          [0, 7],
                          [0, 8],
