@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 #%% Initialization
 NUM_ARRAY = [31, 26, 25, 27, 25, 14]
 START = 0
-DATASET = 6
+DATASET = 3
 NUM = NUM_ARRAY[DATASET - 1]
 name = 'Measure/T_{}_{}.txt'
 
@@ -36,9 +36,9 @@ for i in range(NUM):
     
     # finds maxima
     max_back[i] = np.r_[False, power[i,1:] > power[i,:-1]] & np.r_[power[i,:-1] > power[i,1:], False]
-max_wlength = [wlength[i, np.argmax(dbm_power[i])] for i in range(NUM)]
-max_p_dbm = [np.max(dbm_power[i, max_back[i]]) for i in range(NUM)]
-max_p = [np.max(power[i, max_back[i]]) for i in range(NUM)]
+max_wlength = np.array([wlength[i, np.argmax(dbm_power[i])] for i in range(NUM)])
+max_p_dbm = np.array([np.max(dbm_power[i, max_back[i]]) for i in range(NUM)])
+max_p = np.array([np.max(power[i, max_back[i]]) for i in range(NUM)])
 tot_p = np.sum(power, axis=1)
 dtot_p[:, 0] = np.sqrt(np.sum(np.squeeze(dpower[:,:,0])**2, axis=1))
 dtot_p[:, 1] = np.sqrt(np.sum(np.squeeze(dpower[:,:,1])**2, axis=1))
@@ -206,7 +206,18 @@ retta = lambda x, a, b: a*x + b
 
 i_th = [10, 10.52,  11.67, 13.06, 15.6]
 mask = np.array([current[i] > i_th[DATASET-1] for i in range(NUM)]) #take only the points above the threshold
-#mask[[17, 16]] = False #exclude specific data pointsm
+
+#exclude specific data points
+if DATASET == 1:
+    mask[[16,17,22,25,29]] = False 
+elif DATASET == 2:
+    mask[17] = False
+elif DATASET == 3:
+    mask[[18,23]] = False
+elif DATASET == 4:
+    mask[[23,24,25]] = False
+elif DATASET == 5:
+    mask[[16,17]] = False
 
 
 param, covm = opt.curve_fit(retta, current[mask], tot_p[mask], sigma= tot_p[mask]*0.03)
@@ -220,6 +231,9 @@ plt.fill_between(current, tot_p*0.985, tot_p*1.015, alpha=0.4) #with error 3% (+
 plt.plot(current[mask], retta(current[mask], *param,))
 plt.grid(True)
 plt.show()
+
+eqe = 1.6022e-19 / 6.6262e-34 / 2.99e8 * np.mean(max_wlength[mask]) *1e-9
+print('External Qefficiency: {:%} +/- {:%}'.format(eqe*param[0], eqe*np.sqrt(covm[0,0])))
 
 
 #%% THRESHOLD CURRENT STUDY
