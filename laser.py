@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 #%% Initialization
 NUM_ARRAY = [31, 26, 25, 27, 25, 14]
 START = 0
-DATASET = 5
+DATASET = 6
 NUM = NUM_ARRAY[DATASET - 1]
 name = 'Measure/T_{}_{}.txt'
 
@@ -42,7 +42,7 @@ max_p = [np.max(power[i, max_back[i]]) for i in range(NUM)]
 tot_p = np.sum(power, axis=1)
 dtot_p[:, 0] = np.sqrt(np.sum(np.squeeze(dpower[:,:,0])**2, axis=1))
 dtot_p[:, 1] = np.sqrt(np.sum(np.squeeze(dpower[:,:,1])**2, axis=1))
-#print(dtot_p/np.transpose([tot_p, tot_p]))
+print(dtot_p/np.transpose([tot_p, tot_p]))
 
 # #%% PLOT TEMPERATURE AND CURRENT
 # fig, axs = plt.subplots(2)
