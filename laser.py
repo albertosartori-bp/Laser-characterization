@@ -12,7 +12,7 @@ d_eqe = np.empty(5)
 #%% Initialization
 NUM_ARRAY = [31, 26, 25, 27, 25, 14]
 START = 0
-DATASET = 2
+DATASET = 5
 NUM = NUM_ARRAY[DATASET - 1]
 name = 'Measure/T_{}_{}.txt'
 
@@ -27,6 +27,9 @@ dpower = np.empty((NUM, a.shape[1], 2))
 max_back = np.empty((NUM, a.shape[1]), dtype=bool)
 dtot_p = np.empty((NUM,2))
 
+
+
+n_ext = np.empty(len(NUM_ARRAY)-1)
 
 #%%    READ DATA, CONVERSION FROM dBm TO W, FIND MAXIMA
 for i in range(NUM):
@@ -209,9 +212,72 @@ ax2.set_ylabel("Total power") #(or the one of the highest peak) non vedo nessun 
 #%%  TOTAL POWER VS CURRENT STUDY
 retta = lambda x, a, b: a*x + b
 
+
 ith = [10, 10.52,  11.67, 13.06, 15.6]
 mask = np.array([current[i] > ith[DATASET-1] for i in range(NUM)]) #take only the points above the threshold
 mask_below = np.array([current[i] < ith[DATASET-1] for i in range(NUM)])
+
+
+#exclude specific data points
+if DATASET == 1:
+    mask[[22,25,29]] = False  #16 e 17 can be excluded but doesn't change
+elif DATASET == 2:
+    mask[17] = False
+elif DATASET == 3:
+    mask[[18,23]] = False
+elif DATASET == 4:
+    mask[[25]] = False #23 e 24 can be excluded but doesn't change
+elif DATASET == 5:
+    mask[[16,17]] = False
+
+
+param, covm = opt.curve_fit(retta, current[mask], tot_p[mask], sigma= tot_p[mask]*0.05)
+print("a: {} +/- {} mW/mA".format(param[0], np.sqrt(covm[0,0])))
+print("b: {} +/- {} mW".format(param[1], np.sqrt(covm[1,1])))
+
+plt.figure()
+plt.errorbar(current, tot_p, tot_p*0.05, fmt='.', capsize=2, label='Experimental data')
+#plt.fill_between(current, tot_p - dtot_p[:,0], tot_p + dtot_p[:,1], alpha=0.4) #with error from datasheet
+#plt.fill_between(current, tot_p*0.95, tot_p*1.05, alpha=0.4) #with error 3% (+-1.5?)
+plt.plot(current[mask], retta(current[mask], *param,), label='Linear fit')
+plt.xlabel('Current [mA]')
+plt.ylabel('Optical power [mW]')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+eqe = 1.6022e-19 / 6.6262e-34 / 2.99e8 *param[0]* np.mean(max_wlength[mask]) *1e-9
+print('External Qefficiency: {:%} +/- {:%}'.format(eqe, eqe*np.sqrt(covm[0,0]/param[0]**2 + np.std(max_wlength[mask])**2/np.mean(max_wlength[mask])**2)))#PROPAGA ERRORE DA LAMBDA
+
+#%% quantum efficiency in function of temperature
+#slope efficiency
+#0.094(2)  0.089(1)  0.082(2)  0.079(1)  0.074(1)
+#external quantum efficiency
+#0.117(3) 0.111(1) 0.103(2) 0.099(1) 0.093(2)
+t_t =np.array([16, 23, 30, 37, 48])
+t_eqe = np.array([0.117, 0.111, 0.103, 0.099, 0.093])
+t_deqe = np.array([0.003, 0.001, 0.002, 0.001, 0.002])
+
+t_32 = lambda x,a,b: b+a*x**(-5/2)
+
+t_param, t_covm = opt.curve_fit(t_32, t_t, t_eqe, sigma=t_deqe)
+
+plt.figure()
+plt.errorbar(t_t, t_eqe, yerr=t_deqe, fmt='.', capsize=2)
+plt.plot(t_t, t_32(t_t, *t_param,))
+plt.xlabel('Temperature [Celsius]')
+plt.ylabel('External quantum efficiency')
+plt.grid(True)
+plt.show()
+
+#%% THRESHOLD CURRENT STUDY
+CURRENT_LIMITS_BELOW = np.array([ [0, 4],
+                         [0, 7],
+                         [0, 8],
+                         [0, 10],
+                         [0, 13],
+                         [0, 0] ])
+                         
 
 #exclude specific data points
 if DATASET == 1:
