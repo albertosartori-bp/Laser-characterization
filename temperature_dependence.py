@@ -123,6 +123,3 @@ plt.legend()
 plt.show()
 
 print("The coefficient is: ", fit_param[0], "+-", np.sqrt(fit_covm[0,0]), "nm/K")
-
-
-
