@@ -341,13 +341,13 @@ param_above, covm_above = opt.curve_fit(retta, current[mask], tot_p[mask], sigma
 ###     FIRST METHOD: LINEAR FIT
 i_th[DATASET-1, 0] = -param_above[1]/param_above[0]
 perr = np.sqrt(np.diag(covm_above))
-di_th[DATASET-1, 0] = i_th[DATASET-1, 0]*np.sqrt(((perr[0]/param_above[0])**2)+((perr[1]/param_above[1])**2)-(2*np.sqrt(-covm_above[0,1])/param_above[1]/param_above[0]))
+di_th[DATASET-1, 0] = i_th[DATASET-1, 0]*np.sqrt(((perr[0]/param_above[0])**2)+((perr[1]/param_above[1])**2)-(2*(covm_above[0,1])/param_above[1]/param_above[0]))
 
 
 ###     SECOND METHOD: TWO-SEGMENT FIT
 i_th[DATASET-1, 1] = - (param_above[1]-param_below[1])/(param_above[0]-param_below[0])
-sigma_up = np.sqrt(covm_above[1,1]**2 + covm_below[1,1]**2)
-sigma_down = np.sqrt(covm_above[0,0]**2 + covm_below[0,0]**2)
+sigma_up = np.sqrt(covm_above[1,1] + covm_below[1,1])
+sigma_down = np.sqrt(covm_above[0,0] + covm_below[0,0])
 di_th[DATASET-1, 1] = i_th[DATASET-1, 1]*np.sqrt((sigma_up/(-param_above[1]+param_below[1]))**2 + (sigma_down/(param_above[0]-param_below[0]))**2)
 
 #%% DERIVATIVE COMPUTATION OF THRESHOLD CURRENT
@@ -530,8 +530,13 @@ T = np.empty(5)
 for j in range(5):
         T[j] = np.loadtxt(name.format(j+1, 0), skiprows=2, max_rows=1, unpack=True)
 
-ith = i_th[:,1]
-dith = di_th[:,1]
+ith = np.array([9.5167 , 10.5324, 11.7177, 13.0366,  15.5214])
+
+dith = np.array([0.2757,
+        0.2309,
+        0.2733,
+        0.2904,
+        0.4245])
 
 plt.figure()
 plt.errorbar(T, np.log(ith), yerr=dith/ith,fmt='.r',label='Experimental data')
@@ -540,12 +545,12 @@ plt.ylabel('$ln(i_{th})$')
 plt.grid(True)
 plt.show()
 
-param, covm = opt.curve_fit(retta, T, np.log(ith), sigma=dith/ith)
+param, covm = opt.curve_fit(retta, T, np.log(ith), sigma=dith/ith, absolute_sigma=True)
 x = np.arange(15,50, 0.1)
 
 plt.plot(x, param[0]*x+param[1], '-b',label='FIT')
 plt.legend()
 
-print('Characteristic temperature T0 =', 1/param[0], '+/-' , np.sqrt(covm[0,0]), 'K')
+print('Characteristic temperature T0 =', 1/param[0], '+/-' , np.sqrt(covm[0,0]/param[0]**4), 'K')
 
 
