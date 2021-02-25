@@ -12,7 +12,7 @@ d_eqe = np.empty(5)
 #%% Initialization
 NUM_ARRAY = [31, 26, 25, 27, 25, 14]
 START = 0
-DATASET = 5
+DATASET = 4
 NUM = NUM_ARRAY[DATASET - 1]
 name = 'Measure/T_{}_{}.txt'
 
@@ -310,7 +310,7 @@ plt.show()
 eqe = 1.6022e-19 / 6.6262e-34 / 2.99e8 *param[0]* np.mean(max_wlength[mask]) *1e-9
 print('External Qefficiency: {:%} +/- {:%}'.format(eqe, eqe*np.sqrt(covm[0,0]/param[0]**2 + np.std(max_wlength[mask])**2/np.mean(max_wlength[mask])**2)))#PROPAGA ERRORE DA LAMBDA
 
-#%% quantum efficiency in function of temperature
+#%% quantum efficiency as a function of temperature
 #slope efficiency
 #0.094(2)  0.089(1)  0.082(2)  0.079(1)  0.074(1)
 #external quantum efficiency
@@ -341,13 +341,13 @@ param_above, covm_above = opt.curve_fit(retta, current[mask], tot_p[mask], sigma
 ###     FIRST METHOD: LINEAR FIT
 i_th[DATASET-1, 0] = -param_above[1]/param_above[0]
 perr = np.sqrt(np.diag(covm_above))
-di_th[DATASET-1, 0] = i_th[DATASET-1, 0]*np.sqrt(((perr[0]/param_above[0])**2)+((perr[1]/param_above[1])**2)-(2*np.sqrt(-covm_above[0,1])/param_above[1]/param_above[0]))
+di_th[DATASET-1, 0] = i_th[DATASET-1, 0]*np.sqrt(((perr[0]/param_above[0])**2)+((perr[1]/param_above[1])**2)-(2*covm_above[0,1]/param_above[1]/param_above[0]))
 
 
 ###     SECOND METHOD: TWO-SEGMENT FIT
 i_th[DATASET-1, 1] = - (param_above[1]-param_below[1])/(param_above[0]-param_below[0])
-sigma_up = np.sqrt(covm_above[1,1]**2 + covm_below[1,1]**2)
-sigma_down = np.sqrt(covm_above[0,0]**2 + covm_below[0,0]**2)
+sigma_up = np.sqrt(covm_above[1,1] + covm_below[1,1])
+sigma_down = np.sqrt(covm_above[0,0] + covm_below[0,0])
 di_th[DATASET-1, 1] = i_th[DATASET-1, 1]*np.sqrt((sigma_up/(-param_above[1]+param_below[1]))**2 + (sigma_down/(param_above[0]-param_below[0]))**2)
 
 #%% DERIVATIVE COMPUTATION OF THRESHOLD CURRENT
