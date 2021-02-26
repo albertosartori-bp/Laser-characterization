@@ -48,7 +48,7 @@ print(aver_tot_p)
 #     DIFFERENT RESOLUTION
 #%% FIRST CASE: T = 45, I = 29 mA, Medium mean
 temp = np.loadtxt("Calibration/Res_{}.txt".format(0), skiprows=4, unpack=True)
-res1_resolutions = np.array([0.5,1,5]) # nm
+res1_resolutions = np.array([1,1,5]) # nm
 res1_wlength = np.empty((3, temp.shape[1]))
 res1_dbm_power = np.empty((3, temp.shape[1]))
 res1_power = np.empty((3, temp.shape[1]))
@@ -89,7 +89,7 @@ for i in range(9):
 
 # plot data
 plt.figure()
-for i in range(8):
+for i in range(9): #[0, 4, 7]
     plt.plot(res2_wlength[i], res2_dbm_power[i], label='{}'.format(i+1))
     #plt.plot(wlength[i, max_back[i]], dbm_power[i, max_back[i]], 'k.')
 
@@ -196,7 +196,6 @@ print(range2_tot_p)
 #   STABILITY
 #%% FIRST CASE: T = 25, I = 20 mA, No averages, Full resolution
 temp = np.loadtxt("Calibration/Stability_0_{}.txt".format(1), skiprows=4, unpack=True)
-# i range sono: 1450-1650, 1449-1649, 1448-1648, 1447-1647
 stab1_wlength = np.empty((6, temp.shape[1]))
 stab1_dbm_power = np.empty((6, temp.shape[1]))
 

@@ -12,7 +12,7 @@ d_eqe = np.empty(5)
 #%% Initialization
 NUM_ARRAY = [31, 26, 25, 27, 25, 14]
 START = 0
-DATASET = 5
+DATASET = 4
 NUM = NUM_ARRAY[DATASET - 1]
 name = 'Measure/T_{}_{}.txt'
 
@@ -51,7 +51,7 @@ max_p = np.array([np.max(power[i, max_back[i]]) for i in range(NUM)])
 tot_p = np.sum(power, axis=1)
 dtot_p[:, 0] = np.sqrt(np.sum(np.squeeze(dpower[:,:,0])**2, axis=1))
 dtot_p[:, 1] = np.sqrt(np.sum(np.squeeze(dpower[:,:,1])**2, axis=1))
-#print(dtot_p/np.transpose([tot_p, tot_p]))
+print(dtot_p/np.transpose([tot_p, tot_p]))
 
 # #%% PLOT TEMPERATURE AND CURRENT
 # fig, axs = plt.subplots(2)
@@ -65,24 +65,24 @@ dtot_p[:, 1] = np.sqrt(np.sum(np.squeeze(dpower[:,:,1])**2, axis=1))
 # plt.show()
 
 
-# #%% PLOT ALL SPECTRA
-# plt.figure()
-# for i in range(NUM):
-#     plt.plot(wlength[i], dbm_power[i], label='{}'.format(i+1))
-#     #plt.plot(wlength[i, max_back[i]], dbm_power[i, max_back[i]], 'k.')
+#%% PLOT ALL SPECTRA
+plt.figure()
+for i in range(NUM):
+    plt.plot(wlength[i], dbm_power[i], label='{}'.format(i+1))
+    #plt.plot(wlength[i, max_back[i]], dbm_power[i, max_back[i]], 'k.')
 
-# plt.legend(loc='upper right')
-# plt.xlabel('wavelength [nm]')
-# plt.ylabel('power [dBm]')
-# plt.grid(True)
-# plt.show()
+plt.legend(loc='upper right')
+plt.xlabel('wavelength [nm]')
+plt.ylabel('power [dBm]')
+plt.grid(True)
+plt.show()
 
 
 
 #%% WAVELENGTH DEPENDENCE FROM CURRENT (DONE THE SAME WAY AS TEMPERATURE)
 
 #find the first N maxima (Nmax)
-Nmax = 1
+Nmax = 3
 N = 15
 idx = np.empty((NUM, N))
 y_temp = np.empty((NUM, N))
@@ -166,7 +166,7 @@ plt.legend()
 plt.show()
 
 # select a peak
-lamb = 1545.1
+lamb = 1554.5
 y_fit = np.zeros(NUM)
 for i in range(NUM):
     if not np.all(np.abs(y[i,:]-lamb)>0.7):
@@ -192,7 +192,7 @@ print("The coefficient is: ", fit_param[0], "+-", np.sqrt(fit_covm[0,0]), "nm/mA
 # Count how many longitudinal modes are present. tol is the tolerance with which I select a peak
 # tol = -10 means I count all the peaks that are between 0 and -10 dbm after normalization with the highest peak
 # NOTE: THERE CAN BE FALSE COUNTS! A volte ci sono 2 puntine su un picco
-tol = -20
+tol = -10
 norm_dbm_power = np.transpose(np.transpose(dbm_power) - max_p_dbm)
 peak_count = [np.sum(norm_dbm_power[i, max_back[i]]>tol) for i in range(NUM)]
 # peak_count1 è il conteggio togliendo i picchi vicini tra loro (nota: i conteggi da 1 vengono azzerati)
@@ -310,7 +310,7 @@ plt.show()
 eqe = 1.6022e-19 / 6.6262e-34 / 2.99e8 *param[0]* np.mean(max_wlength[mask]) *1e-9
 print('External Qefficiency: {:%} +/- {:%}'.format(eqe, eqe*np.sqrt(covm[0,0]/param[0]**2 + np.std(max_wlength[mask])**2/np.mean(max_wlength[mask])**2)))#PROPAGA ERRORE DA LAMBDA
 
-#%% quantum efficiency in function of temperature
+#%% quantum efficiency as a function of temperature
 #slope efficiency
 #0.094(2)  0.089(1)  0.082(2)  0.079(1)  0.074(1)
 #external quantum efficiency
@@ -341,7 +341,9 @@ param_above, covm_above = opt.curve_fit(retta, current[mask], tot_p[mask], sigma
 ###     FIRST METHOD: LINEAR FIT
 i_th[DATASET-1, 0] = -param_above[1]/param_above[0]
 perr = np.sqrt(np.diag(covm_above))
-di_th[DATASET-1, 0] = i_th[DATASET-1, 0]*np.sqrt(((perr[0]/param_above[0])**2)+((perr[1]/param_above[1])**2)+(2*covm_above[0,1]/param_above[1]/param_above[0]))
+
+di_th[DATASET-1, 0] = i_th[DATASET-1, 0]*np.sqrt(((perr[0]/param_above[0])**2)+((perr[1]/param_above[1])**2)-(2*covm_above[0,1]/param_above[1]/param_above[0]))
+
 
 
 ###     SECOND METHOD: TWO-SEGMENT FIT
@@ -530,8 +532,14 @@ T = np.empty(5)
 for j in range(5):
         T[j] = np.loadtxt(name.format(j+1, 0), skiprows=2, max_rows=1, unpack=True)
 
-ith = i_th[:,1]
-dith = di_th[:,1]
+ith = np.array([9.5167 , 10.5324, 11.7177, 13.0366,  15.5214])
+
+dith = np.array([0.2757,
+        0.2309,
+        0.2733,
+        0.2904,
+        0.4245])
+
 
 plt.figure()
 plt.errorbar(T, np.log(ith), yerr=dith/ith,fmt='.r',label='Experimental data')
@@ -540,12 +548,12 @@ plt.ylabel('$ln(i_{th})$')
 plt.grid(True)
 plt.show()
 
-param, covm = opt.curve_fit(retta, T, np.log(ith), sigma=dith/ith)
+param, covm = opt.curve_fit(retta, T, np.log(ith), sigma=dith/ith, absolute_sigma=True)
 x = np.arange(15,50, 0.1)
 
 plt.plot(x, param[0]*x+param[1], '-b',label='FIT')
 plt.legend()
 
-print('Characteristic temperature T0 =', 1/param[0], '+/-' , np.sqrt(covm[0,0]), 'K')
+print('Characteristic temperature T0 =', 1/param[0], '+/-' , np.sqrt(covm[0,0]/param[0]**4), 'K')
 
 
