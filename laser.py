@@ -228,10 +228,10 @@ elif DATASET == 3:
 elif DATASET == 4:
     mask[[25]] = False #23 e 24 can be excluded but doesn't change
 elif DATASET == 5:
-    mask[[16,17]] = False
+    mask[[16,17]] = True #False
 
 
-param, covm = opt.curve_fit(retta, current[mask], tot_p[mask], sigma= tot_p[mask]*0.05)
+param, covm = opt.curve_fit(retta, current[mask], tot_p[mask], sigma= tot_p[mask]*0.05, absolute_sigma=True)
 print("a: {} +/- {} mW/mA".format(param[0], np.sqrt(covm[0,0])))
 print("b: {} +/- {} mW".format(param[1], np.sqrt(covm[1,1])))
 
@@ -251,9 +251,9 @@ print('External Qefficiency: {:%} +/- {:%}'.format(eqe, eqe*np.sqrt(covm[0,0]/pa
 
 #%% quantum efficiency in function of temperature
 #slope efficiency
-#0.094(2)  0.089(1)  0.082(2)  0.079(1)  0.074(1)
+#0.094(2)  0.089(1)  0.082(1)  0.079(1)  0.074(1)
 #external quantum efficiency
-#0.117(3) 0.111(1) 0.103(2) 0.099(1) 0.093(2)
+#0.117(2) 0.111(2) 0.103(2) 0.099(2) 0.093(2)
 t_t =np.array([16, 23, 30, 37, 48])
 t_eqe = np.array([0.117, 0.111, 0.103, 0.099, 0.093])
 t_deqe = np.array([0.003, 0.001, 0.002, 0.001, 0.002])
@@ -292,7 +292,7 @@ elif DATASET == 5:
     mask[[16,17]] = False
 
 
-param, covm = opt.curve_fit(retta, current[mask], tot_p[mask], sigma= tot_p[mask]*0.05)
+param, covm = opt.curve_fit(retta, current[mask], tot_p[mask], sigma= tot_p[mask]*0.05, absolute_sigma=True)
 print("a: {} +/- {} mW/mA".format(param[0], np.sqrt(covm[0,0])))
 print("b: {} +/- {} mW".format(param[1], np.sqrt(covm[1,1])))
 
@@ -341,13 +341,13 @@ param_above, covm_above = opt.curve_fit(retta, current[mask], tot_p[mask], sigma
 ###     FIRST METHOD: LINEAR FIT
 i_th[DATASET-1, 0] = -param_above[1]/param_above[0]
 perr = np.sqrt(np.diag(covm_above))
-di_th[DATASET-1, 0] = i_th[DATASET-1, 0]*np.sqrt(((perr[0]/param_above[0])**2)+((perr[1]/param_above[1])**2)-(2*np.sqrt(-covm_above[0,1])/param_above[1]/param_above[0]))
+di_th[DATASET-1, 0] = i_th[DATASET-1, 0]*np.sqrt(((perr[0]/param_above[0])**2)+((perr[1]/param_above[1])**2)+(2*covm_above[0,1]/param_above[1]/param_above[0]))
 
 
 ###     SECOND METHOD: TWO-SEGMENT FIT
 i_th[DATASET-1, 1] = - (param_above[1]-param_below[1])/(param_above[0]-param_below[0])
-sigma_up = np.sqrt(covm_above[1,1]**2 + covm_below[1,1]**2)
-sigma_down = np.sqrt(covm_above[0,0]**2 + covm_below[0,0]**2)
+sigma_up = np.sqrt(covm_above[1,1] + covm_below[1,1])
+sigma_down = np.sqrt(covm_above[0,0] + covm_below[0,0])
 di_th[DATASET-1, 1] = i_th[DATASET-1, 1]*np.sqrt((sigma_up/(-param_above[1]+param_below[1]))**2 + (sigma_down/(param_above[0]-param_below[0]))**2)
 
 #%% DERIVATIVE COMPUTATION OF THRESHOLD CURRENT
