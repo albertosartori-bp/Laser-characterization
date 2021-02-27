@@ -12,9 +12,9 @@ temperature = np.empty(NUM)
 wlength = np.empty((NUM, a.shape[1]))
 dbm_power = np.empty((NUM, a.shape[1])) # NOTE: every "-10dbm" is an order of magnitude less
 power = np.empty((NUM, a.shape[1]))
-dpower = np.empty((NUM, a.shape[1], 2))
+dpower = np.empty((NUM, a.shape[1]))
 max_back = np.empty((NUM, a.shape[1]), dtype=bool)
-dtot_p = np.empty((NUM,2))
+dtot_p = np.empty((NUM))
 
 #%%    READ DATA, CONVERSION FROM dBm TO W, FIND MAXIMA
 for i in range(NUM):
@@ -25,8 +25,7 @@ for i in range(NUM):
     
     # conversion
     power[i] = 10**(dbm_power[i]/10)/3.8
-    dpower[i,:,0] = power[i] * 10**(-0.5/10) - power[i]
-    dpower[i,:,1] = power[i] * 10**(0.5/10) - power[i]
+    dpower[i] = power[i] * 0.05
     
     # finds maxima
     max_back[i] = np.r_[False, power[i,1:] > power[i,:-1]] & np.r_[power[i,:-1] > power[i,1:], False]
@@ -35,8 +34,7 @@ max_p_dbm = [np.max(dbm_power[i, max_back[i]]) for i in range(NUM)]
 max_p = [np.max(power[i, max_back[i]]) for i in range(NUM)]
 
 tot_p = np.sum(power, axis=1)
-dtot_p[:, 0] = np.sqrt(np.sum(np.squeeze(dpower[:,:,0])**2, axis=1))
-dtot_p[:, 1] = np.sqrt(np.sum(np.squeeze(dpower[:,:,1])**2, axis=1))
+dtot_p = tot_p * 0.05
 #print(dtot_p/np.transpose([tot_p, tot_p]))
 
 # #%% PLOT TEMPERATURE AND CURRENT
@@ -51,17 +49,17 @@ dtot_p[:, 1] = np.sqrt(np.sum(np.squeeze(dpower[:,:,1])**2, axis=1))
 # plt.show()
 
 
-# #%% PLOT ALL SPECTRA
-# plt.figure()
-# for i in range(NUM):
-#     plt.plot(wlength[i], dbm_power[i], label='{}'.format(i+1))
-#     #plt.plot(wlength[i, max_back[i]], dbm_power[i, max_back[i]], 'k.')
+#%% PLOT ALL SPECTRA
+plt.figure()
+for i in range(NUM):
+     plt.plot(wlength[i], dbm_power[i], label='{}'.format(i+1))
+    #plt.plot(wlength[i, max_back[i]], dbm_power[i, max_back[i]], 'k.')
 
-# plt.legend(loc='upper right')
-# plt.xlabel('wavelength [nm]')
-# plt.ylabel('power [dBm]')
-# plt.grid(True)
-# plt.show()
+plt.legend(loc='upper right')
+plt.xlabel('wavelength [nm]')
+plt.ylabel('power [dBm]')
+plt.grid(True)
+plt.show()
 
 
 #%% PLOT ONE SPECTRUM
@@ -81,7 +79,7 @@ plt.show()
 # %% power/temperature plot
 
 #find the first N maxima (Nmax)
-Nmax = 5
+Nmax = 4
 N = 15
 idx = np.empty((NUM, N))
 y_temp = np.empty((NUM, N))
@@ -97,7 +95,7 @@ for i in range(NUM):
 for i in range(NUM):
     j=0
     k = 0
-    while j<5:
+    while j<Nmax:
         if np.all( abs(y_temp[i,:k] - y_temp[i,k]) > 0.7):
             y[i,j] = y_temp[i, k]
             j += 1
@@ -111,10 +109,11 @@ fit_param, fit_covm = opt.curve_fit(retta, temperature[:8], y[:8, 0], sigma = ye
 
 # plot
 plt.figure()
-for i in range(Nmax):
-    plt.errorbar(temperature, y[:,i], yerr = 0.02, fmt='.-', label="Maximum number {}".format(i+1))
+plt.errorbar(temperature, y[:,0], yerr = 0.02, fmt='.--', capsize=2, label="Absolute maximum")
+for i in range(Nmax-1):
+    plt.errorbar(temperature, y[:,i+1], yerr = 0.02, fmt='.--', capsize=2, label="Maximum number {}".format(i+2))
 for i in range(10):
-    plt.plot(np.arange(10,50,1), fit_param[1]-8.8+1.1*i + fit_param[0]*np.arange(10,50,1), '-k', alpha=0.5)
+    plt.plot(np.arange(15,50,1), fit_param[1]-6.6+1.1*i + fit_param[0]*np.arange(15,50,1), '-k', alpha=0.3, linewidth=1)
 
 plt.xlabel('Temperature [°C]')
 plt.ylabel('Peak wavelength [nm]')

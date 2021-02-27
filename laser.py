@@ -12,7 +12,7 @@ d_eqe = np.empty(5)
 #%% Initialization
 NUM_ARRAY = [31, 26, 25, 27, 25, 14]
 START = 0
-DATASET = 4
+DATASET = 5
 NUM = NUM_ARRAY[DATASET - 1]
 name = 'Measure/T_{}_{}.txt'
 
@@ -166,11 +166,11 @@ plt.legend()
 plt.show()
 
 # select a peak
-lamb = 1554.5
+lamb = 1544
 y_fit = np.zeros(NUM)
 for i in range(NUM):
     if not np.all(np.abs(y[i,:]-lamb)>0.7):
-        y_fit= y[i,np.abs(y[i,:]-lamb)<0.7]
+        y_fit[i]= y[i,np.abs(y[i,:]-lamb)<0.7]
         
     
 # fit
@@ -556,4 +556,11 @@ plt.legend()
 
 print('Characteristic temperature T0 =', 1/param[0], '+/-' , np.sqrt(covm[0,0]/param[0]**4), 'K')
 
+#%% More spectra 3d plot
+b = np.argmax([wlength[0,i]>1500 for i in range(wlength[0].size)])
+e = np.argmax([wlength[0,i]>1600 for i in range(wlength[0].size)])
 
+fig=plt.figure()
+ax= fig.gca(projection='3d')
+for i in range(NUM_ARRAY[DATASET-1]):
+    plt.plot(wlength[i, b:e], i*np.ones(wlength[i, b:e].size), dbm_power[i, b:e])
